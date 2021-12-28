@@ -6,6 +6,7 @@ const { read } = require('../src/read')
 const fs = require('fs')
 const signale = require('signale')
 const path = require('path')
+const { Network } = require('../src/network')
 
 const cli = yargs(hideBin(process.argv))
 
@@ -47,7 +48,7 @@ cli.command(
       })
   },
   async (yargs) => {
-    await publish(yargs.file, yargs.network, yargs.purse)
+    await publish(yargs.file, Network.fromString(yargs.network), yargs.purse)
   })
 
 // Command: read
@@ -75,9 +76,9 @@ cli.command(
       const stat = fs.statSync(output)
       if (stat.isDirectory()) {
         const newPath = path.basename(
-          path.join(output, bFile.fileName.toString())
+          path.join(output, bFile.fileName)
         )
-        fs.writeFileSync(newPath, bFile.buff, { flag: 'w+' })
+        fs.writeFileSync(newPath, bFile.buff)
       } else {
         fs.writeFileSync(output, bFile.buff)
       }

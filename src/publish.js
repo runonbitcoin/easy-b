@@ -8,16 +8,7 @@ const { detectMimeType } = require('./detect-mime-type')
 const { BFile } = require('./b-file')
 
 const publish = async (file, network, purseWif) => {
-  let runNetwork
-  if (network === Networks.mainnet) {
-    runNetwork = 'main'
-  } else if (network === Networks.testnet) {
-    runNetwork = 'test'
-  } else {
-    throw new Error(`Unknown network: ${network}`)
-  }
-
-  const run = new Run({ network: runNetwork })
+  const run = new Run({ network: network.forRun() })
   const blockchain = run.blockchain
 
   // Load file

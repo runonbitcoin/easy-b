@@ -1,16 +1,10 @@
-const { Networks, Transaction } = require('bsv')
+const { Transaction } = require('bsv')
+const { MAINNET } = require('./network')
 const fetch = require('node-fetch')
 const { BFile } = require('./b-file')
 
-const read = async (txid, vout, network = Networks.mainnet) => {
-  let networkPrefix
-  if (network === Networks.mainnet) {
-    networkPrefix = 'main'
-  } else if (network === Networks.testnet) {
-    networkPrefix = 'test'
-  }
-
-  const response = await fetch(`https://api.run.network/v1/${networkPrefix}/rawtx/${txid}`)
+const read = async (txid, vout, network = MAINNET) => {
+  const response = await fetch(`https://api.run.network/v1/${network.short}/rawtx/${txid}`)
   if (!response.ok) {
     throw new Error(`Error fetching tx: ${txid}`)
   }
@@ -25,9 +19,9 @@ const read = async (txid, vout, network = Networks.mainnet) => {
 
   return new BFile(
     bOutput.script.chunks[3].buf,
-    bOutput.script.chunks[4].buf,
-    bOutput.script.chunks[5].buf,
-    bOutput.script.chunks[6].buf
+    bOutput.script.chunks[4].buf.toString(),
+    bOutput.script.chunks[5].buf.toString(),
+    bOutput.script.chunks[6].buf.toString()
   )
 }
 
