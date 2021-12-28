@@ -1,16 +1,17 @@
 const fs = require('fs')
-const signale = require('signale');
+const signale = require('signale')
 const { Transaction, PrivateKey, Address, Script, Networks } = require('bsv')
 const Run = require('run-sdk')
 
 const path = require('path')
 const { detectMimeType } = require('./detect-mime-type')
+const { BFile } = require('./b-file')
 
 const publish = async (file, network, purseWif) => {
   let runNetwork
   if (network === Networks.mainnet) {
     runNetwork = 'main'
-  } else if ( network === Networks.testnet ){
+  } else if (network === Networks.testnet) {
     runNetwork = 'test'
   } else {
     throw new Error(`Unknown network: ${network}`)
@@ -18,7 +19,6 @@ const publish = async (file, network, purseWif) => {
 
   const run = new Run({ network: runNetwork })
   const blockchain = run.blockchain
-
 
   // Load file
   const filePath = file
@@ -40,11 +40,9 @@ const publish = async (file, network, purseWif) => {
   // const keyPair = KeyPair.fromPrivKey(privKey)
   const inputAddress = Address.fromPrivateKey(privKey)
 
-
   // new tx
   const tx = new Transaction()
-  tx.feePerKb(260)
-
+  tx.feePerKb(250)
 
   // Build tx consumming utxos for current key
   const utxos = await blockchain.utxos(inputAddress.toString())
@@ -62,22 +60,12 @@ const publish = async (file, network, purseWif) => {
   tx.change(inputAddress)
 
   // Add B data.
-  tx.addOutput(new Transaction.Output({
-    satoshis: 0,
-    script: Script.buildSafeDataOut([
-      Buffer.from('19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut'),
-      fileBuffer,
-      Buffer.from(mime),
-      Buffer.from('binary'),
-      fileName
-    ])
-  }))
-
+  const bFile = new BFile(fileBuffer, mime, 'binary', fileName)
+  tx.addOutput(bFile.toTxOutput())
 
   // Build and sign tx.
   tx.sign([privKey])
-  signale.watch(`Tx built and signed.`)
-
+  signale.watch('Tx built and signed.')
 
   // Broadcast
   try {

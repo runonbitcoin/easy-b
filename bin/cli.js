@@ -1,7 +1,11 @@
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
-const { PrivateKey, Networks } = require('bsv')
+const { Networks } = require('bsv')
 const { publish } = require('../src/publish')
+const { read } = require('../src/read')
+const fs = require('fs')
+const signale = require('signale')
+const path = require('path')
 
 const cli = yargs(hideBin(process.argv))
 
@@ -29,18 +33,10 @@ cli.option('purse-wif', {
   default: process.env.PURSE_WIF
 })
 cli.check((argv) => {
-  try {
-    new PrivateKey(argv.purse, argv.network)
-    return true
-  } catch (e) {
-    throw e
-  }
   return true
 })
 
-
 // Command: publish
-
 cli.command(
   'publish <file>',
   'publish a file using B protocol',
@@ -50,10 +46,46 @@ cli.command(
         describe: 'file to upload to the blockchain'
       })
   },
-  (yargs) => {
-    publish(yargs.file, yargs.network, yargs.purse)
+  async (yargs) => {
+    await publish(yargs.file, yargs.network, yargs.purse)
   })
 
+// Command: read
+cli.command(
+  'read <txid>',
+  'read a file published using B and print it to stdout',
+  (yargs) => {
+    return yargs
+      .positional('txid', {
+        desc: 'txid where to search for the B file.'
+      })
+      .option('output', {
+        alias: 'o',
+        desc: 'Output location. If not specified print to stdout. If output is a folder tries to use original filename',
+        type: 'string',
+        default: null,
+        normalize: true
+      })
+  },
+  async (yargs) => {
+    const bFile = await read(yargs.txid, yargs.network)
+    const output = yargs.output
+    console.log('output', output)
+    if (output) {
+      const stat = fs.statSync(output)
+      if (stat.isDirectory()) {
+        const newPath = path.basename(
+          path.join(output, bFile.fileName.toString())
+        )
+        fs.writeFileSync(newPath, bFile.buff, { flag: 'w+' })
+      } else {
+        fs.writeFileSync(output, bFile.buff)
+      }
+      signale.success('Ok!')
+    } else {
+      process.stdout.write(bFile.buff)
+    }
+  })
 
 // Common configurations and execute
 cli.showHelpOnFail(true)
