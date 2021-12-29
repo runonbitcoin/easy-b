@@ -1,9 +1,11 @@
 {
-  "name": "easy-b",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "@runonbitcoin/easy-b",
+  "version": "0.1.0",
+  "description": "Simple library to manage B uploads",
   "license": "MIT",
+  "author": "runonbitcoin",
   "main": "src/commands/index.js",
+  "repository": "git://github.com/runonbitcoin/easy-b.git",
   "scripts": {
     "lint": "standard",
     "lint-fix": "standard --fix"
