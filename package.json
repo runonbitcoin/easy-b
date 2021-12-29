@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "main": "src/commands/index.js",
   "scripts": {
     "lint": "standard",
     "lint-fix": "standard --fix"
+  },
+  "bin": {
+    "easy-b": "bin/cli.js"
   },
   "dependencies": {
     "bsv": "^1.5.6",

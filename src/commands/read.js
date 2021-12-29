@@ -1,7 +1,7 @@
 const { Transaction } = require('bsv')
-const { MAINNET } = require('./network')
+const { MAINNET } = require('../network')
 const fetch = require('node-fetch')
-const { BFile } = require('./b-file')
+const { BFile } = require('../b-file')
 
 const read = async (txid, vout, network = MAINNET) => {
   const response = await fetch(`https://api.run.network/v1/${network.short}/rawtx/${txid}`)

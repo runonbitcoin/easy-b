@@ -1,6 +1,6 @@
 const { Transaction, PrivateKey, Address, Script } = require('bsv')
 const Run = require('run-sdk')
-const { NullLogger } = require('./logging/null-logger')
+const { NullLogger } = require('../logging/null-logger')
 
 const publish = async (bFile, network, purseWif, logger = new NullLogger()) => {
   const run = new Run({ network: network.forRun() })
