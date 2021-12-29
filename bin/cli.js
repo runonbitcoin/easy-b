@@ -1,6 +1,6 @@
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
-const { Networks } = require('bsv')
+const { Networks, PrivateKey } = require('bsv')
 const { publish } = require('../src/publish')
 const { read } = require('../src/read')
 const fs = require('fs')
@@ -16,13 +16,8 @@ cli.option('network', {
   default: process.env.BSV_NETWORK || 'main',
   desc: 'bsv network. Defaults to env var BSV_NETWORK. If absent defaults to mainnet',
   coerce: (input) => {
-    if (input === 'main' || input === 'mainnet') {
-      return Networks.mainnet
-    } else if (input === 'test' || input === 'testnet') {
-      return Networks.testnet
-    } else {
-      throw new Error(`Unknown network: ${input}`)
-    }
+    console.log('input', input)
+    return Network.fromString(input)
   }
 })
 
@@ -33,7 +28,13 @@ cli.option('purse-wif', {
   type: 'string',
   default: process.env.PURSE_WIF
 })
-cli.check((argv) => {
+cli.check((yargs) => {
+  if (yargs.purse) {
+    const privKey = new PrivateKey(yargs.purse)
+    if (privKey.network !== yargs.network.bsvObject) {
+      throw new Error(`Specified network (${yargs.network.long}) does not match with purse network (${privKey.network.alias})`)
+    }
+  }
   return true
 })
 
@@ -46,9 +47,15 @@ cli.command(
       .positional('file', {
         describe: 'file to upload to the blockchain'
       })
+      .check((yargs) => {
+        if (!yargs.purse) {
+          throw new Error(`Please specify a purse private key`)
+        }
+        return true
+      })
   },
   async (yargs) => {
-    await publish(yargs.file, Network.fromString(yargs.network), yargs.purse)
+    await publish(yargs.file, yargs.network, yargs.purse)
   })
 
 // Command: read

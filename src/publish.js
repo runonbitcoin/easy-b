@@ -27,7 +27,7 @@ const publish = async (file, network, purseWif) => {
   signale.watch(`File resolved. Name: ${fileName} Mime type: ${mime}`)
 
   // Get fund key
-  const privKey = new PrivateKey(purseWif, network)
+  const privKey = new PrivateKey(purseWif, network.long)
   // const keyPair = KeyPair.fromPrivKey(privKey)
   const inputAddress = Address.fromPrivateKey(privKey)
 
