@@ -46,7 +46,7 @@ easy-b --purse=<key> publish path/to/file.png
 Easy-b works with mainnet and testnet.
 
 ``` bash
-easy-b publish ./my-image.png --network=testnet
+easy-b publish ./my-image.png --network=test
 ```
 
 ## Using inside nodejs
