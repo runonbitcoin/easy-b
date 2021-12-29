@@ -59,7 +59,8 @@ cli.command(
   },
   async (yargs) => {
     const bFile = await BFile.fromFilePath(yargs.file, logger)
-    await publish(bFile, yargs.network, yargs.purse, logger)
+    const txid = await publish(bFile, yargs.network, yargs.purse, logger)
+    logger.success(`Success: ${txid}`)
   })
 
 // Command: read

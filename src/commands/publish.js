@@ -44,7 +44,7 @@ const publish = async (bFile, network, purseWif, logger = new NullLogger()) => {
     logger.error(`Error: ${e.message}`)
     process.exit(1)
   }
-  logger.success(`Success: ${tx.hash}`)
+  return tx.hash
 }
 
 module.exports = { publish }
