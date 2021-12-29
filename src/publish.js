@@ -1,30 +1,10 @@
-const fs = require('fs')
-const signale = require('signale')
-const { Transaction, PrivateKey, Address, Script, Networks } = require('bsv')
+const { Transaction, PrivateKey, Address, Script } = require('bsv')
 const Run = require('run-sdk')
+const { NullLogger } = require('./logging/null-logger')
 
-const path = require('path')
-const { detectMimeType } = require('./detect-mime-type')
-const { BFile } = require('./b-file')
-
-const publish = async (file, network, purseWif) => {
+const publish = async (bFile, network, purseWif, logger = new NullLogger()) => {
   const run = new Run({ network: network.forRun() })
   const blockchain = run.blockchain
-
-  // Load file
-  const filePath = file
-
-  // open file
-  let fileBuffer
-  try {
-    fileBuffer = fs.readFileSync(filePath)
-  } catch (e) {
-    signale.fatal(`Cannot open specified route: ${filePath}`)
-    process.exit(1)
-  }
-  const fileName = path.basename(filePath)
-  const mime = await detectMimeType(fileBuffer)
-  signale.watch(`File resolved. Name: ${fileName} Mime type: ${mime}`)
 
   // Get fund key
   const privKey = new PrivateKey(purseWif, network.long)
@@ -51,21 +31,20 @@ const publish = async (file, network, purseWif) => {
   tx.change(inputAddress)
 
   // Add B data.
-  const bFile = new BFile(fileBuffer, mime, 'binary', fileName)
   tx.addOutput(bFile.toTxOutput())
 
   // Build and sign tx.
   tx.sign([privKey])
-  signale.watch('Tx built and signed.')
+  logger.info('Tx built and signed.')
 
   // Broadcast
   try {
     await blockchain.broadcast(tx.checkedSerialize())
   } catch (e) {
-    signale.error(`Error: ${e.message}`)
+    logger.error(`Error: ${e.message}`)
     process.exit(1)
   }
-  signale.success(`Success: ${tx.hash}`)
+  logger.success(`Success: ${tx.hash}`)
 }
 
 module.exports = { publish }

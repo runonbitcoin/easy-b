@@ -1,12 +1,15 @@
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
-const { Networks, PrivateKey } = require('bsv')
+const { PrivateKey } = require('bsv')
 const { publish } = require('../src/publish')
 const { read } = require('../src/read')
 const fs = require('fs')
-const signale = require('signale')
 const path = require('path')
 const { Network } = require('../src/network')
+const { BFile } = require('../src/b-file')
+const { SignaleLogger } = require('../src/logging/signale-logger')
+
+const logger = new SignaleLogger()
 
 const cli = yargs(hideBin(process.argv))
 
@@ -49,13 +52,14 @@ cli.command(
       })
       .check((yargs) => {
         if (!yargs.purse) {
-          throw new Error(`Please specify a purse private key`)
+          throw new Error('Please specify a purse private key')
         }
         return true
       })
   },
   async (yargs) => {
-    await publish(yargs.file, yargs.network, yargs.purse)
+    const bFile = await BFile.fromFilePath(yargs.file, logger)
+    await publish(bFile, yargs.network, yargs.purse, logger)
   })
 
 // Command: read
@@ -78,7 +82,6 @@ cli.command(
   async (yargs) => {
     const bFile = await read(yargs.txid, yargs.network)
     const output = yargs.output
-    console.log('output', output)
     if (output) {
       const stat = fs.statSync(output)
       if (stat.isDirectory()) {
@@ -89,7 +92,7 @@ cli.command(
       } else {
         fs.writeFileSync(output, bFile.buff)
       }
-      signale.success('Ok!')
+      logger.success('Ok!')
     } else {
       process.stdout.write(bFile.buff)
     }
