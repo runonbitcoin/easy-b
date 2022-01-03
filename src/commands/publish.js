@@ -41,7 +41,7 @@ const publish = async (bFile, network, purseWif, logger = new NullLogger()) => {
   try {
     await blockchain.broadcast(tx.checkedSerialize())
   } catch (e) {
-    logger.error(`Error: ${e.message}`)
+    logger.fatal(`Error: ${e.message}`)
     process.exit(1)
   }
   return tx.hash
