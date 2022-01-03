@@ -6,6 +6,7 @@
   "author": "runonbitcoin",
   "main": "src/index.js",
   "repository": "git://github.com/runonbitcoin/easy-b.git",
+  "private": false,
   "scripts": {
     "lint": "standard",
     "lint-fix": "standard --fix"
