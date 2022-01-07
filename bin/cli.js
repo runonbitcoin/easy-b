@@ -21,7 +21,6 @@ cli.option('network', {
   default: process.env.BSV_NETWORK || 'main',
   desc: 'bsv network. Defaults to env var BSV_NETWORK. If absent defaults to mainnet',
   coerce: (input) => {
-    console.log('input', input)
     return Network.fromString(input)
   }
 })
