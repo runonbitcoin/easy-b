@@ -13,6 +13,11 @@ const { SignaleLogger } = require('../src/logging/signale-logger')
 
 const logger = new SignaleLogger()
 
+function isDirectory(output) {
+  const stat = fs.statSync(output)
+  return stat.isDirectory()
+}
+
 const cli = yargs(hideBin(process.argv))
 
 // Optional, define network
@@ -80,13 +85,20 @@ cli.command(
         default: null,
         normalize: true
       })
+      .check((yargs) => {
+        const parsed = path.parse(yargs.output)
+        const exists = fs.existsSync(parsed.dir || '.')
+        if (!exists) {
+          return 'output directory does not exists'
+        }
+        return true
+      })
   },
   async (yargs) => {
     const bFile = await read(yargs.txid, yargs.network)
     const output = yargs.output
     if (output) {
-      const stat = fs.statSync(output)
-      if (stat.isDirectory()) {
+      if (isDirectory(output)) {
         const newPath = path.basename(
           path.join(output, bFile.fileName)
         )
