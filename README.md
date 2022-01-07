@@ -51,14 +51,35 @@ easy-b publish ./my-image.png --network=test
 
 ## Using inside nodejs
 
+Publish:
+
 ``` js
-const { publish, read, BFile } = require('@runonbitcoin/easy-b')
+const { BFile, publish, networks } = require('@runonbitcoin/easy-b') 
+
+const purse = process.env.PURSE_WIF
 
 const main = async () => {
-    const readedFile = await read('2cfc649249aa845af21009d7bf8fe6f75f375f87e692ea7d92c3b3ac3d6583cb')
-    console.log(readedFile)
-    
-    const fileToPublish = await Bfile.fromFilePath('./path/to/file')
-    await publish(fileToPublish)
+  const bFile = await BFile.fromFilePath('/home/migue/Pictures/dragon.png')
+  const txid = await publish(bFile, networks.MAINNET, purse)
+  console.log(txid)
 }
+
+main()
+```
+
+Read:
+
+``` js
+const { BFile, publish, networks } = require('@runonbitcoin/easy-b') 
+
+const purse = process.env.PURSE_WIF
+
+const main = async () => {
+  const bFile = await BFile.fromFilePath('/home/migue/Pictures/dragon.png')
+  const txid = await publish(bFile, networks.MAINNET, purse)
+  console.log(txid)
+
+}
+
+main()
 ```
