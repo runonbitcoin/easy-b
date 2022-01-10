@@ -1,6 +1,25 @@
 const { Transaction, PrivateKey, Address, Script } = require('bsv')
 const Run = require('run-sdk')
 const { NullLogger } = require('../logging/null-logger')
+const fetch = require('node-fetch')
+
+async function broadcast (network, tx) {
+  const response = await fetch(`https://api.run.network/v1/${network.short}/tx`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      rawtx: tx.uncheckedSerialize()
+    })
+  })
+  if (!response.ok) {
+    const body = await response.json()
+    console.log(Object.keys(body))
+    console.log(body.message)
+    throw new Error('Problem broadcasting transaction.')
+  }
+}
 
 const publish = async (bFile, network, purseWif, logger = new NullLogger()) => {
   const run = new Run({ network: network.forRun() })
@@ -39,7 +58,7 @@ const publish = async (bFile, network, purseWif, logger = new NullLogger()) => {
 
   // Broadcast
   try {
-    await blockchain.broadcast(tx.checkedSerialize())
+    await broadcast(network, tx)
   } catch (e) {
     logger.fatal(`Error: ${e.message}`)
     process.exit(1)
