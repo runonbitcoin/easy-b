@@ -9,7 +9,8 @@
   "private": false,
   "scripts": {
     "lint": "standard",
-    "lint-fix": "standard --fix"
+    "lint-fix": "standard --fix",
+    "publish-patch": "npm version patch && git push --follow-tags && npm publish"
   },
   "bin": {
     "easy-b": "bin/cli.js"

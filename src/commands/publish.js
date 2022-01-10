@@ -3,7 +3,7 @@ const Run = require('run-sdk')
 const { NullLogger } = require('../logging/null-logger')
 const fetch = require('node-fetch')
 
-async function broadcast (network, tx) {
+async function broadcast (tx, network) {
   const response = await fetch(`https://api.run.network/v1/${network.short}/tx`, {
     method: 'POST',
     headers: {
@@ -58,7 +58,7 @@ const publish = async (bFile, network, purseWif, logger = new NullLogger()) => {
 
   // Broadcast
   try {
-    await broadcast(network, tx)
+    await broadcast(tx, network)
   } catch (e) {
     logger.fatal(`Error: ${e.message}`)
     process.exit(1)
