@@ -14,8 +14,16 @@ const { SignaleLogger } = require('../src/logging/signale-logger')
 const logger = new SignaleLogger()
 
 function isDirectory(output) {
-  const stat = fs.statSync(output)
-  return stat.isDirectory()
+  try {
+    const stat = fs.statSync(output)
+    return stat.isDirectory()
+  } catch (e) {
+    if (e.errno === -2) {
+      return false
+    } else {
+      throw e
+    }
+  }
 }
 
 const cli = yargs(hideBin(process.argv))
