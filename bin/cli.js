@@ -16,6 +16,7 @@ const logger = new SignaleLogger()
 function isDirectory(output) {
   try {
     const stat = fs.statSync(output)
+    console.log(stat.isDirectory())
     return stat.isDirectory()
   } catch (e) {
     if (e.errno === -2) {
@@ -107,9 +108,7 @@ cli.command(
     const output = yargs.output
     if (output) {
       if (isDirectory(output)) {
-        const newPath = path.basename(
-          path.join(output, bFile.fileName)
-        )
+        const newPath = path.join(output, bFile.fileName)
         fs.writeFileSync(newPath, bFile.buff)
       } else {
         fs.writeFileSync(output, bFile.buff)
