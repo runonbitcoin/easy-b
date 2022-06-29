@@ -1,14 +1,16 @@
-const { Networks } = require('bsv')
-
 class Network {
-  constructor (short, long, bsvObject) {
+  constructor (short, long, nimbleIsTestnet) {
     this.short = short
     this.long = long
-    this.bsvObject = bsvObject
+    this.nimbleIsTestnet = nimbleIsTestnet
   }
 
   forRun () {
     return this.short
+  }
+
+  isTestnet () {
+    return this.nimbleIsTestnet
   }
 
   static fromString (str) {
@@ -23,13 +25,13 @@ class Network {
 const MAINNET = new Network(
   'main',
   'mainnet',
-  Networks.mainnet
+  false
 )
 
 const TESTNET = new Network(
   'test',
   'testnet',
-  Networks.testnet
+  true
 )
 
 module.exports = {

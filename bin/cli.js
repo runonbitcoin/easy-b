@@ -2,7 +2,7 @@
 
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
-const { PrivateKey } = require('bsv')
+const { PrivateKey } = require('@runonbitcoin/nimble')
 const { publish } = require('../src/commands/publish')
 const { read } = require('../src/commands/read')
 const fs = require('fs')
@@ -13,7 +13,7 @@ const { SignaleLogger } = require('../src/logging/signale-logger')
 
 const logger = new SignaleLogger()
 
-function isDirectory(output) {
+function isDirectory (output) {
   try {
     const stat = fs.statSync(output)
     console.log(stat.isDirectory())
@@ -48,9 +48,14 @@ cli.option('purse-wif', {
 })
 cli.check((yargs) => {
   if (yargs.purse) {
-    const privKey = new PrivateKey(yargs.purse)
-    if (privKey.network !== yargs.network.bsvObject) {
-      throw new Error(`Specified network (${yargs.network.long}) does not match with purse network (${privKey.network.alias})`)
+    let privKey
+    try {
+      privKey = PrivateKey.fromString(yargs.purse)
+    } catch (e) {
+      throw new Error(`invalid purse key: ${yargs.purse}`)
+    }
+    if (privKey.testnet !== yargs.network.isTestnet()) {
+      throw new Error(`Specified network (${yargs.network.long}) does not match with purse.`)
     }
   }
   return true
@@ -74,7 +79,7 @@ cli.command(
   },
   async (yargs) => {
     const bFile = await BFile.fromFilePath(yargs.file, logger)
-    const txid = await publish(bFile, yargs.network, yargs.purse, logger)
+    const txid = await publish(bFile, yargs.network, yargs.purse, { logger })
     logger.success(`Success: ${txid}`)
   })
 
