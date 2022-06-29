@@ -100,6 +100,9 @@ cli.command(
         normalize: true
       })
       .check((yargs) => {
+        if (yargs.output === null) {
+          return true
+        }
         const parsed = path.parse(yargs.output)
         const exists = fs.existsSync(parsed.dir || '.')
         if (!exists) {
