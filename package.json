@@ -1,6 +1,6 @@
 {
   "name": "@runonbitcoin/easy-b",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Simple library to manage B uploads",
   "license": "MIT",
   "author": "runonbitcoin",
