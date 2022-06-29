@@ -70,15 +70,16 @@ main()
 Read:
 
 ``` js
-const { BFile, publish, networks } = require('@runonbitcoin/easy-b') 
+const { BFile, read, networks } = require('@runonbitcoin/easy-b') 
 
-const purse = process.env.PURSE_WIF
+const txid = '92b00456e0072ad51a97fe6ff31ba59079128529cb5b247eea5588610cb3d493'
 
 const main = async () => {
-  const bFile = await BFile.fromFilePath('/home/migue/Pictures/dragon.png')
-  const txid = await publish(bFile, networks.MAINNET, purse)
-  console.log(txid)
-
+  const bFile = await read(txid)
+  console.log(bFile.mime)
+  console.log(bFile.fileName)
+  console.log(bFile.format)
+  console.log(bFile.buff.toString('hex'))
 }
 
 main()
