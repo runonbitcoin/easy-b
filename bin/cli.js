@@ -70,6 +70,11 @@ cli.command(
       .positional('file', {
         describe: 'file to upload to the blockchain'
       })
+      .option('feePerKb', {
+        desc: 'Transaction fee expressed as sastoshis per kb.',
+        type: 'number',
+        default: 50
+      })
       .check((yargs) => {
         if (!yargs.purse) {
           throw new Error('Please specify a purse private key')
@@ -79,7 +84,7 @@ cli.command(
   },
   async (yargs) => {
     const bFile = await BFile.fromFilePath(yargs.file, logger)
-    const txid = await publish(bFile, yargs.network, yargs.purse, { logger })
+    const txid = await publish(bFile, yargs.network, yargs.purse, { logger, feePerKb: yargs.feePerKb })
     logger.success(`Success: ${txid}`)
   })
 
