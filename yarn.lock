@@ -44,6 +44,11 @@
   resolved "https://registry.yarnpkg.com/@runonbitcoin/nimble/-/nimble-1.0.13.tgz#b626ccf9ca637bb743ace84907ffef54b83ac8f2"
   integrity sha512-xYKlrw/0rEIWyMQ2la/vvD6tI4tSaKevJlIrn8SEXUdT8hHte6zvX14UdJJ2D+APQFhrpUKPAo2YZediYzuPFg==
 
+"@runonbitcoin/nimble@^1.0.14":
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/@runonbitcoin/nimble/-/nimble-1.0.14.tgz#312c766dfb55b82ff9bca30ea7b8c32a2337cb4b"
+  integrity sha512-F5emsG7QmD3HRvk/zw+ygkeK0ijnlL+ifXRXliqzzlGH679dQpnW9Ophmcw4Uxgs9SaQgJDi7xa6veU1v+Sj7g==
+
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"

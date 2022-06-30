@@ -7,6 +7,7 @@ const { P2PKH, OpReturn } = casts
 
 const publish = async (bFile, network, purseWif, opts = {}) => {
   const logger = opts.logger || new NullLogger()
+  const feePerKb = opts.feePerKb || 50
 
   const run = Run.instance || new Run({ network: network.forRun() })
   const blockchain = run.blockchain
@@ -23,7 +24,10 @@ const publish = async (bFile, network, purseWif, opts = {}) => {
     outputs: [
       OpReturn.lock(0, { data: bFile.toBChunks() })
     ],
-    change: { address: inputAddress }
+    change: { address: inputAddress },
+    options: {
+      rates: { data: feePerKb, standard: feePerKb }
+    }
   })
 
   // Broadcast

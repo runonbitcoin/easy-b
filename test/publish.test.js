@@ -32,6 +32,28 @@ describe('publish', function () {
       expect(() => nimble.functions.decodeTx(Buffer.from(hexTx, 'hex'))).not.to.throw()
     })
 
+    it('sets right fee', async () => {
+      const file = new BFile(Buffer.from('holu'), 'text/plain')
+      const feePerKb = 554 // arbitrary amount
+      const txid = await publish(file, TESTNET, get.purseWif, { feePerKb: feePerKb })
+
+      const hexTx = await get.run.blockchain.fetch(txid)
+      const tx = nimble.classes.Transaction.fromHex(hexTx)
+      const estimated = 1e8 - Math.ceil((tx.toBuffer().byteLength / 1000) * feePerKb)
+      expect(tx.outputs[1].satoshis).to.be.within(estimated - 10, estimated + 10)
+    })
+
+    it('sets 50 sats/kb by default', async () => {
+      const file = new BFile(Buffer.from('holu'), 'text/plain')
+      const feePerKb = 50 // arbitrary amount
+      const txid = await publish(file, TESTNET, get.purseWif)
+
+      const hexTx = await get.run.blockchain.fetch(txid)
+      const tx = nimble.classes.Transaction.fromHex(hexTx)
+      const estimated = 1e8 - Math.ceil((tx.toBuffer().byteLength / 1000) * feePerKb)
+      expect(tx.outputs[1].satoshis).to.be.within(estimated - 10, estimated + 10)
+    })
+
     it('creates a change output', async () => {
       const file = new BFile(Buffer.from('holu'), 'text/plain')
       const txid = await publish(file, TESTNET, get.purseWif)
