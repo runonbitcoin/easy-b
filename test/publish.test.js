@@ -18,6 +18,10 @@ describe('publish', function () {
     return new Run({ network: 'mock', blockchain })
   })
 
+  def('broadcast', () => (txHex) => {
+    return get.run.blockchain.broadcast(txHex)
+  })
+
   describe('when there is enough funds', () => {
     beforeEach(async () => {
       const address = get.purseKey.toAddress()
@@ -26,7 +30,7 @@ describe('publish', function () {
 
     it('can publish a simple file', async () => {
       const file = new BFile(Buffer.from('holu'), 'text/plain')
-      const txid = await publish(file, TESTNET, get.purseWif)
+      const txid = await publish(file, TESTNET, get.purseWif, { broadcast: get.broadcast })
 
       const hexTx = await get.run.blockchain.fetch(txid)
       expect(() => nimble.functions.decodeTx(Buffer.from(hexTx, 'hex'))).not.to.throw()
@@ -35,7 +39,7 @@ describe('publish', function () {
     it('sets right fee', async () => {
       const file = new BFile(Buffer.from('holu'), 'text/plain')
       const feePerKb = 554 // arbitrary amount
-      const txid = await publish(file, TESTNET, get.purseWif, { feePerKb: feePerKb })
+      const txid = await publish(file, TESTNET, get.purseWif, { feePerKb: feePerKb, broadcast: get.broadcast })
 
       const hexTx = await get.run.blockchain.fetch(txid)
       const tx = nimble.classes.Transaction.fromHex(hexTx)
@@ -46,7 +50,7 @@ describe('publish', function () {
     it('sets 50 sats/kb by default', async () => {
       const file = new BFile(Buffer.from('holu'), 'text/plain')
       const feePerKb = 50 // arbitrary amount
-      const txid = await publish(file, TESTNET, get.purseWif)
+      const txid = await publish(file, TESTNET, get.purseWif, { broadcast: get.broadcast })
 
       const hexTx = await get.run.blockchain.fetch(txid)
       const tx = nimble.classes.Transaction.fromHex(hexTx)
@@ -56,7 +60,7 @@ describe('publish', function () {
 
     it('creates a change output', async () => {
       const file = new BFile(Buffer.from('holu'), 'text/plain')
-      const txid = await publish(file, TESTNET, get.purseWif)
+      const txid = await publish(file, TESTNET, get.purseWif, { broadcast: get.broadcast })
 
       const hexTx = await get.run.blockchain.fetch(txid)
       const tx = nimble.functions.decodeTx(Buffer.from(hexTx, 'hex'))
@@ -65,16 +69,21 @@ describe('publish', function () {
       expect(output).to.be.an('object')
     })
 
-    it('can publish a 10mb file', async function () {
+    it('can publish a 2mb file', async function () {
       this.timeout(1000 * 60)
-      const file = new BFile(Buffer.alloc((2 ** 20) * 10).fill('a'), 'text/plain')
-      try {
-        await publish(file, TESTNET, get.purseWif)
-      } catch (e) {
-        // because we are using the mockchain we get this error. This will be fixed in run 0.7
-        // with the mockchain using nimble. This doesn't happens with real blockchain
-        expect(e.message).to.eql('transaction over the maximum block size')
-      }
+      const file = new BFile(Buffer.alloc((2 ** 20) * 2).fill('a'), 'text/plain')
+
+      let broadcasted = false
+      await publish(file, TESTNET, get.purseWif, {
+        broadcast: async (txHex) => {
+          broadcasted = true
+          const tx = nimble.classes.Transaction.fromBuffer(Buffer.from(txHex, 'hex'))
+          expect(Buffer.from(tx.outputs[0].script.chunks[3].buf).equals(file.buff))
+          return tx.hash
+        }
+      })
+
+      expect(broadcasted).to.eql(true)
     })
   })
 })
